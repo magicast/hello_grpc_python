@@ -1,0 +1,6 @@
+certifi==2018.4.16
+googleapis-common-protos==1.5.3
+grpcio==1.12.1
+grpcio-tools==1.14.0
+protobuf==3.6.0
+six==1.11.0
