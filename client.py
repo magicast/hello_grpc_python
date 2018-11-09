@@ -29,7 +29,7 @@ from hello_pb2_grpc import HelloStub
 
 def run(command):
     # create channel
-    with grpc.insecure_channel('localhost:30011') as channel:
+    with grpc.insecure_channel('localhost:10056') as channel:
         # create stub
         hello_stub = HelloStub(channel)
 

@@ -17,12 +17,17 @@ limitations under the License.
 
 """
 
-from concurrent import futures
+from gevent import monkey
+monkey.patch_all()
+import grpc.experimental.gevent as grpc_gevent
+grpc_gevent.init_gevent()
+# from gevent.threadpool import ThreadPoolExecutor
+import grpc
+from concurrent.futures import ThreadPoolExecutor
 import time
-
 import random
 
-import grpc
+
 from hello_pb2 import HelloReply, SumReply
 from hello_pb2_grpc import HelloServicer, add_HelloServicer_to_server
 
@@ -31,6 +36,7 @@ class Hello(HelloServicer):
     # unary
     def Say(self, request, context):
         print('REQUEST:', request.message)
+        time.sleep(30)
         response_message = 'You said: {}!'.format(request.message)
         print('RESPONSE:', response_message)
         return HelloReply(message=response_message)
@@ -38,7 +44,6 @@ class Hello(HelloServicer):
     # server streaming
     def Notify(self, request, context):
         for e in range(10):
-            time.sleep(1)
             response_message = 'you said: {}: {}'.format(request.message, e)
             yield HelloReply(message=response_message)
         print('END')
@@ -65,12 +70,13 @@ class Hello(HelloServicer):
 
 
 def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    server = grpc.server(ThreadPoolExecutor(max_workers=100))
 
     add_HelloServicer_to_server(Hello(), server)
 
-    server.add_insecure_port('[::]:30011')
+    server.add_insecure_port('[::]:10056')
     server.start()
+    print('started')
     try:
         while True:
             time.sleep(60 * 60 * 24)
